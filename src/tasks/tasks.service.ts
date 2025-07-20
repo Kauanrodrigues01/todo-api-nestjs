@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Task } from './entities/task.entity';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
+import { TASK_ERRORS } from 'src/common/errors/messages';
 
 @Injectable()
 export class TasksService {
@@ -15,7 +16,7 @@ export class TasksService {
   findOne(id: number): Task {
     const task = this.tasks.find((task) => task.id === id);
     if (!task) {
-      throw new NotFoundException(`Tarefa com o ID ${id} não encontrada.`);
+      throw new NotFoundException(TASK_ERRORS.NOT_FOUND(id));
     }
     return task;
   }
@@ -40,7 +41,7 @@ export class TasksService {
   remove(id: number): void {
     const index: number = this.tasks.findIndex((task) => task.id === id);
     if (index === -1) {
-      throw new NotFoundException(`Tarefa com o ID ${id} não encontrada.`);
+      throw new NotFoundException(TASK_ERRORS.NOT_FOUND(id));
     }
     this.tasks.splice(index, 1);
   }
