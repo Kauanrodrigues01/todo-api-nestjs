@@ -1,6 +1,6 @@
 import { ApiParam } from '@nestjs/swagger';
 
-export const ApiIdParam = () =>
+export const ApiIdParam = (): MethodDecorator =>
   ApiParam({
     name: 'id',
     description: 'ID único da tarefa',

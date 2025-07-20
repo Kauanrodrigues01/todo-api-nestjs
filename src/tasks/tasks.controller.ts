@@ -10,12 +10,24 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
-import { ApiIdParam } from 'src/common/swagger/api-id-param.decorator';
+import { ApiIdParam } from 'src/common/swagger/decorators/api-param.decorators';
+import {
+  ApiInternalServerErrorResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+} from 'src/common/swagger/decorators/api-exceptions-response.decorators';
 
 @ApiTags('Tasks')
 @Controller('tasks')
@@ -28,15 +40,12 @@ export class TasksController {
     description:
       'Retorna uma lista de todas as tarefas disponíveis no sistema. A lista pode estar vazia se não houver tarefas cadastradas.',
   })
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Lista de tarefas recuperada com sucesso',
-    type: [TaskResponseDto],
+    type: TaskResponseDto,
+    isArray: true,
   })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor',
-  })
+  @ApiInternalServerErrorResponse()
   findAllTasks() {
     return this.tasksService.findAll();
   }
@@ -48,23 +57,12 @@ export class TasksController {
       'Retorna uma tarefa específica baseada no ID fornecido. Se a tarefa não for encontrada, retorna um erro 404.',
   })
   @ApiIdParam()
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Tarefa encontrada com sucesso',
     type: TaskResponseDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'ID inválido fornecido',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Tarefa não encontrada',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor',
-  })
+  @ApiNotFoundResponse('Tarefa não encontrada')
+  @ApiInternalServerErrorResponse()
   findOneTask(@Param('id', ParseIntPipe) id: number) {
     return this.tasksService.findOne(id);
   }
@@ -76,19 +74,12 @@ export class TasksController {
       'Cria uma nova tarefa no sistema com os dados fornecidos. Todos os campos obrigatórios devem ser preenchidos.',
   })
   @ApiBody({ type: CreateTaskDto })
-  @ApiResponse({
-    status: 201,
+  @ApiCreatedResponse({
     description: 'Tarefa criada com sucesso',
     type: TaskResponseDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Dados inválidos fornecidos',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor',
-  })
+  @ApiBadRequestResponse()
+  @ApiInternalServerErrorResponse()
   create(@Body() createTaskDto: CreateTaskDto) {
     return this.tasksService.create(createTaskDto);
   }
@@ -101,23 +92,13 @@ export class TasksController {
   })
   @ApiBody({ type: UpdateTaskDto })
   @ApiIdParam()
-  @ApiResponse({
-    status: 200,
+  @ApiOkResponse({
     description: 'Tarefa atualizada com sucesso',
     type: TaskResponseDto,
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Dados inválidos fornecidos',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Tarefa não encontrada',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor',
-  })
+  @ApiBadRequestResponse()
+  @ApiNotFoundResponse('Tarefa não encontrada')
+  @ApiInternalServerErrorResponse()
   update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
@@ -132,22 +113,10 @@ export class TasksController {
       'Remove uma tarefa do sistema baseada no ID fornecido. A operação é irreversível.',
   })
   @ApiIdParam()
-  @ApiResponse({
-    status: 204,
-    description: 'Tarefa removida com sucesso',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'ID inválido fornecido',
-  })
-  @ApiResponse({
-    status: 404,
-    description: 'Tarefa não encontrada',
-  })
-  @ApiResponse({
-    status: 500,
-    description: 'Erro interno do servidor',
-  })
+  @ApiNoContentResponse({ description: 'Tarefa removida com sucesso' })
+  @ApiBadRequestResponse()
+  @ApiNotFoundResponse('Tarefa não encontrada')
+  @ApiInternalServerErrorResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id', ParseIntPipe) id: number) {
     this.tasksService.remove(id);
