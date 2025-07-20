@@ -21,9 +21,9 @@ async function bootstrap() {
   // Configurando Global Pipe para a lib class-validator funcionar
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: true,
-      transform: true,
+      whitelist: true, // Remove propriedades que não estão no DTO (ex: campos extras enviados na requisição serão ignorados)
+      forbidNonWhitelisted: true, // Lança um erro 400 se a requisição tiver campos que não estão definidos no DTO
+      transform: true, // Converte automaticamente os dados recebidos (ex: strings em números) e instancia o DTO corretamente
     }),
   );
 
