@@ -13,4 +13,10 @@ export class TaskResponseDto {
 
   @ApiProperty({ example: TaskStatus.PENDING, enum: TaskStatus })
   status: TaskStatus;
+
+  @ApiProperty({ example: new Date().toISOString() })
+  createdAt: Date;
+
+  @ApiProperty({ example: new Date().toISOString() })
+  updateddAt: Date;
 }

@@ -4,14 +4,42 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { TASK_ERRORS } from 'src/common/errors/messages';
 import { PrismaService } from '../prisma/prisma.service';
 import { Task } from 'generated/prisma';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { PaginatedResponseDto } from 'src/common/dto/pagination-response.dto';
 
 @Injectable()
 export class TasksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<Task[]> {
-    const allTasks = await this.prisma.task.findMany(); // busca todas as tarefas no db
-    return allTasks;
+  async findAll(
+    paginationDto: PaginationQueryDto,
+  ): Promise<PaginatedResponseDto<Task>> {
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [allTasks, total] = await this.prisma.$transaction([
+      this.prisma.task.findMany({
+        // busca todas as tarefas no db
+        skip: skip,
+        take: limit,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+      this.prisma.task.count(),
+    ]);
+
+    const totalPages = Math.ceil(total / limit);
+    return {
+      meta: {
+        totalItems: total,
+        itemCount: allTasks.length,
+        itemsPerPage: limit,
+        totalPages: totalPages,
+        currentPage: page,
+      },
+      data: allTasks,
+    };
   }
 
   async findOne(id: number): Promise<Task> {

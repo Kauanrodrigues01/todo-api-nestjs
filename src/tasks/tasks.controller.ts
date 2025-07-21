@@ -9,6 +9,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -28,6 +29,8 @@ import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
 } from 'src/common/swagger/decorators/api-exceptions-response.decorators';
+import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
+import { ApiOkPaginatedResponse } from 'src/common/swagger/decorators/api-pagineted-response.decotors';
 
 @ApiTags('Tasks')
 @Controller('tasks')
@@ -40,14 +43,10 @@ export class TasksController {
     description:
       'Retorna uma lista de todas as tarefas disponíveis no sistema. A lista pode estar vazia se não houver tarefas cadastradas.',
   })
-  @ApiOkResponse({
-    description: 'Lista de tarefas recuperada com sucesso',
-    type: TaskResponseDto,
-    isArray: true,
-  })
+  @ApiOkPaginatedResponse(TaskResponseDto)
   @ApiInternalServerErrorResponse()
-  async findAllTasks() {
-    return await this.tasksService.findAll();
+  async findAllTasks(@Query() query: PaginationQueryDto) {
+    return await this.tasksService.findAll(query);
   }
 
   @Get('/:id')
