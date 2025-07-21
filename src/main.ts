@@ -2,6 +2,8 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { AddHeaderInterceptor } from './common/interceptors/add-header.interceptor';
 
 // Arquivo que inicia o projeto
 async function bootstrap() {
@@ -26,6 +28,10 @@ async function bootstrap() {
       transform: true, // Converte automaticamente os dados recebidos (ex: strings em números) e instancia o DTO corretamente
     }),
   );
+
+  // Configurando Interceptors Globais da aplicação
+  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalInterceptors(new AddHeaderInterceptor());
 
   await app.listen(process.env.PORT ?? 3000);
 }
