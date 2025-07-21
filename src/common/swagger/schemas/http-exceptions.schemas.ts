@@ -22,7 +22,7 @@ export class BadRequestExceptionSchema {
 
 export class NotFoundExceptionSchema {
   @ApiProperty({
-    example: ['Item com ID 123 não encontrado'],
+    example: 'Item com ID 123 não encontrado',
     description: 'Mensagem de erro detalhada ou lista de mensagens',
   })
   message: string[] | string;
@@ -42,7 +42,7 @@ export class NotFoundExceptionSchema {
 
 export class InternalServerErrorExceptionSchema {
   @ApiProperty({
-    example: ['Erro interno no servidor'],
+    example: 'Erro interno no servidor',
     description: 'Mensagem de erro detalhada ou lista de mensagens',
   })
   message: string[] | string;

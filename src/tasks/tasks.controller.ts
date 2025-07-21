@@ -46,8 +46,8 @@ export class TasksController {
     isArray: true,
   })
   @ApiInternalServerErrorResponse()
-  findAllTasks() {
-    return this.tasksService.findAll();
+  async findAllTasks() {
+    return await this.tasksService.findAll();
   }
 
   @Get('/:id')
@@ -63,8 +63,8 @@ export class TasksController {
   })
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
-  findOneTask(@Param('id', ParseIntPipe) id: number) {
-    return this.tasksService.findOne(id);
+  async findOneTask(@Param('id', ParseIntPipe) id: number) {
+    return await this.tasksService.findOne(id);
   }
 
   @Post()
@@ -80,8 +80,8 @@ export class TasksController {
   })
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
-  create(@Body() createTaskDto: CreateTaskDto) {
-    return this.tasksService.create(createTaskDto);
+  async create(@Body() createTaskDto: CreateTaskDto) {
+    return await this.tasksService.create(createTaskDto);
   }
 
   @Patch('/:id')
@@ -99,11 +99,11 @@ export class TasksController {
   @ApiBadRequestResponse()
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
-  update(
+  async pdate(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
-    return this.tasksService.update(id, updateTaskDto);
+    return await this.tasksService.update(id, updateTaskDto);
   }
 
   @Delete('/:id')
@@ -118,7 +118,7 @@ export class TasksController {
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    this.tasksService.remove(id);
+  async remove(@Param('id', ParseIntPipe) id: number) {
+    await this.tasksService.remove(id);
   }
 }

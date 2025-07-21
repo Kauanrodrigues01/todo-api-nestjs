@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
-import { TaskStatus } from '../entities/task.entity';
 import { ApiProperty } from '@nestjs/swagger';
+import { $Enums } from 'generated/prisma/client';
 
 export class BaseTaskDto {
   @IsString({ message: 'O nome deve ser uma string.' })
@@ -21,15 +21,15 @@ export class BaseTaskDto {
   })
   description?: string;
 
-  @IsEnum(TaskStatus, {
+  @IsEnum($Enums.TaskStatus, {
     message:
       'O status deve ser um dos seguintes valores: completed, pending, in_progress ou cancelled.',
   })
   @ApiProperty({
-    enum: TaskStatus,
-    example: TaskStatus.PENDING,
+    enum: $Enums.TaskStatus,
+    example: $Enums.TaskStatus.PENDING,
     description:
       'Status da tarefa. Pode ser: completed, in_progress, pending ou cancelled.',
   })
-  status: TaskStatus;
+  status: $Enums.TaskStatus;
 }
