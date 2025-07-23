@@ -9,7 +9,7 @@ export class TaskResponseDto {
   name: string;
 
   @ApiProperty({ example: 'Estudar controller, services e documentação' })
-  description: string;
+  description: string | null;
 
   @ApiProperty({ example: TaskStatus.PENDING, enum: TaskStatus })
   status: TaskStatus;
@@ -18,5 +18,5 @@ export class TaskResponseDto {
   createdAt: Date;
 
   @ApiProperty({ example: new Date().toISOString() })
-  updateddAt: Date;
+  updatedAt: Date;
 }

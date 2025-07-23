@@ -16,6 +16,7 @@ const userSelectFields = {
   email: true,
   createdAt: true,
   updatedAt: true,
+  tasks: true,
 };
 
 @Injectable()
