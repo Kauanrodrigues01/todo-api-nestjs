@@ -1,6 +1,6 @@
 import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { $Enums } from 'generated/prisma/client';
+import { $Enums } from '@prisma/client';
 
 export class BaseTaskDto {
   @IsString({ message: 'O nome deve ser uma string.' })

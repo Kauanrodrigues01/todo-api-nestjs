@@ -3,7 +3,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TASK_ERRORS } from 'src/common/errors/messages';
 import { PrismaService } from '../prisma/prisma.service';
-import { Task } from 'generated/prisma';
+import { Task } from '@prisma/client';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResponseDto } from 'src/common/dto/pagination-response.dto';
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { TaskStatus } from 'generated/prisma';
+import { TaskStatus } from '@prisma/client';
 
 export class TaskResponseDto {
   @ApiProperty({ example: 1 })
