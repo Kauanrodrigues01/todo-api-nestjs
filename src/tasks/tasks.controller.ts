@@ -23,7 +23,6 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TasksService } from './tasks.service';
-import { ApiIdParam } from 'src/common/swagger/decorators/api-param.decorators';
 import {
   ApiInternalServerErrorResponse,
   ApiBadRequestResponse,
@@ -55,7 +54,6 @@ export class TasksController {
     description:
       'Retorna uma tarefa específica baseada no ID fornecido. Se a tarefa não for encontrada, retorna um erro 404.',
   })
-  @ApiIdParam()
   @ApiOkResponse({
     description: 'Tarefa encontrada com sucesso',
     type: TaskResponseDto,
@@ -90,7 +88,6 @@ export class TasksController {
       'Atualiza uma tarefa existente com os dados fornecidos. Apenas os campos fornecidos serão atualizados.',
   })
   @ApiBody({ type: UpdateTaskDto })
-  @ApiIdParam()
   @ApiOkResponse({
     description: 'Tarefa atualizada com sucesso',
     type: TaskResponseDto,
@@ -98,7 +95,7 @@ export class TasksController {
   @ApiBadRequestResponse()
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
-  async pdate(
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
   ) {
@@ -111,9 +108,7 @@ export class TasksController {
     description:
       'Remove uma tarefa do sistema baseada no ID fornecido. A operação é irreversível.',
   })
-  @ApiIdParam()
   @ApiNoContentResponse({ description: 'Tarefa removida com sucesso' })
-  @ApiBadRequestResponse()
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
