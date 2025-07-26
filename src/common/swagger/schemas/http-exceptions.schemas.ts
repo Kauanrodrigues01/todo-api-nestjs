@@ -18,6 +18,12 @@ export class BadRequestExceptionSchema {
     description: 'Código de status HTTP',
   })
   statusCode: number;
+
+  @ApiProperty({
+    example: new Date().toISOString(),
+    description: 'Data e hora do erro (ISO string)',
+  })
+  timestamp: string;
 }
 
 export class NotFoundExceptionSchema {
@@ -38,6 +44,12 @@ export class NotFoundExceptionSchema {
     description: 'Código de status HTTP',
   })
   statusCode: number;
+
+  @ApiProperty({
+    example: new Date().toISOString(),
+    description: 'Data e hora do erro (ISO string)',
+  })
+  timestamp: string;
 }
 
 export class InternalServerErrorExceptionSchema {
@@ -58,4 +70,10 @@ export class InternalServerErrorExceptionSchema {
     description: 'Código de status HTTP',
   })
   statusCode: number;
+
+  @ApiProperty({
+    example: new Date().toISOString(),
+    description: 'Data e hora do erro (ISO string)',
+  })
+  timestamp: string;
 }

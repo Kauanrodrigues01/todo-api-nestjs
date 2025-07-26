@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import { AddHeaderInterceptor } from './common/interceptors/add-header.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-error.filter';
 
 // Arquivo que inicia o projeto
 async function bootstrap() {
@@ -32,6 +33,9 @@ async function bootstrap() {
   // Configurando Interceptors Globais da aplicação
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalInterceptors(new AddHeaderInterceptor());
+
+  // Configurando filtro de errors global
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3000);
 }
