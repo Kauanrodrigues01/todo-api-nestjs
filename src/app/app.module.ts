@@ -1,29 +1,25 @@
-import {
-  MiddlewareConsumer,
-  Module,
-  NestModule,
-  RequestMethod,
-} from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TasksModule } from 'src/tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
-import { LoggerMiddleware } from 'src/common/middlewares/logger.middleware';
+import { AuthMiddleware } from 'src/common/middlewares/auth.middleware';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthAdminGuard } from 'src/common/guards/admin.guard';
 
 @Module({
   imports: [TasksModule, UsersModule],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthAdminGuard,
+    },
+  ],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer
-      .apply(LoggerMiddleware)
-      .forRoutes(
-        { path: '*', method: RequestMethod.GET },
-        { path: '*', method: RequestMethod.POST },
-        { path: '*', method: RequestMethod.PATCH },
-        { path: '*', method: RequestMethod.DELETE },
-      );
+    consumer.apply(AuthMiddleware).forRoutes('*');
   }
 }
