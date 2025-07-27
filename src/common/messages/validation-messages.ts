@@ -13,4 +13,8 @@ export const ValidationMessages = {
     `O campo ${field} deve ter entre ${minLength} e ${maxLength} caracteres`,
   ENUM_INVALID: (field: string, enumValid: object) =>
     `O campo ${field} só pode ter um dos seguintes valores: ${Object.values(enumValid).join(', ')}`,
+
+  // Mensagens de autenticação
+  AUTH_INVALID_EMAIL: 'Email inválido',
+  AUTH_INVALID_PASSWORD: 'Senha inválida',
 };

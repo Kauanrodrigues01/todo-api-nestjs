@@ -77,3 +77,29 @@ export class InternalServerErrorExceptionSchema {
   })
   timestamp: string;
 }
+
+export class UnauthorizedExceptionSchema {
+  @ApiProperty({
+    example: 'Email ou senha inválidos',
+    description: 'Mensagem de erro detalhada ou lista de mensagens',
+  })
+  message: string[] | string;
+
+  @ApiProperty({
+    example: 'Unauthorized',
+    description: 'Nome do erro HTTP',
+  })
+  error: string;
+
+  @ApiProperty({
+    example: 401,
+    description: 'Código de status HTTP',
+  })
+  statusCode: number;
+
+  @ApiProperty({
+    example: new Date().toISOString(),
+    description: 'Data e hora do erro (ISO string)',
+  })
+  timestamp: string;
+}

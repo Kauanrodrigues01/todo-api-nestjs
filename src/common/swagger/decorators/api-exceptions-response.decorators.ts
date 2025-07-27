@@ -2,6 +2,7 @@ import {
   BadRequestExceptionSchema,
   InternalServerErrorExceptionSchema,
   NotFoundExceptionSchema,
+  UnauthorizedExceptionSchema,
 } from '../schemas/http-exceptions.schemas';
 import { ApiResponse } from '@nestjs/swagger';
 
@@ -28,4 +29,13 @@ export const ApiInternalServerErrorResponse = (
     status: 500,
     description: description,
     type: InternalServerErrorExceptionSchema,
+  });
+
+export const ApiUnauthorizedResponse = (
+  description = 'Credenciais inválidas',
+): MethodDecorator =>
+  ApiResponse({
+    status: 401,
+    description,
+    type: UnauthorizedExceptionSchema,
   });
