@@ -15,7 +15,6 @@ import { UsersService } from './users.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { ApiOkPaginatedResponse } from 'src/common/swagger/decorators/api-pagineted-response.decotors';
 import {
-  ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
@@ -53,7 +52,6 @@ export class UsersController {
 
   @Post()
   @ApiOperation({ summary: 'Cria um usuário' })
-  @ApiBody({ type: CreateUserDto })
   @ApiCreatedResponse({
     description: 'Usuário criada com sucesso',
     type: UserResponseDto,
@@ -66,7 +64,6 @@ export class UsersController {
 
   @Patch('/:id')
   @ApiOperation({ summary: 'Atualiza um usuário existente' })
-  @ApiBody({ type: UpdateUserDto })
   @ApiOkResponse({
     description: 'Usuário atualizado com sucesso',
     type: UserResponseDto,
@@ -83,7 +80,6 @@ export class UsersController {
 
   @Patch('/:id/password')
   @ApiOperation({ summary: 'Atualiza a senha de um usuário existente' })
-  @ApiBody({ type: UpdatePasswordDto })
   @ApiOkResponse({
     description: 'Senha do usuário atualizado com sucesso',
     type: UserResponseDto,

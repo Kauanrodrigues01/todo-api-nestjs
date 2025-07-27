@@ -12,7 +12,6 @@ import {
   Query,
 } from '@nestjs/common';
 import {
-  ApiBody,
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
@@ -70,7 +69,6 @@ export class TasksController {
     description:
       'Cria uma nova tarefa no sistema com os dados fornecidos. Todos os campos obrigatórios devem ser preenchidos.',
   })
-  @ApiBody({ type: CreateTaskDto })
   @ApiCreatedResponse({
     description: 'Tarefa criada com sucesso',
     type: TaskResponseDto,
@@ -87,7 +85,6 @@ export class TasksController {
     description:
       'Atualiza uma tarefa existente com os dados fornecidos. Apenas os campos fornecidos serão atualizados.',
   })
-  @ApiBody({ type: UpdateTaskDto })
   @ApiOkResponse({
     description: 'Tarefa atualizada com sucesso',
     type: TaskResponseDto,
