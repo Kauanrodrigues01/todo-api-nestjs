@@ -1,18 +1,19 @@
 import { IsEnum, IsOptional, IsString, Length } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { $Enums } from '@prisma/client';
+import { ValidationMessages } from 'src/common/messages/validation-messages';
 
 export class BaseTaskDto {
-  @IsString({ message: 'O nome deve ser uma string.' })
+  @IsString({ message: ValidationMessages.FIELD_STRING('nome') })
   @Length(4, 50, {
-    message: 'O nome deve ter entre 4 e 50 caracteres.',
+    message: ValidationMessages.LENGTH('nome', 4, 50),
   })
   @ApiProperty({ example: 'Estudar NestJS' })
   name: string;
 
-  @IsString({ message: 'A descrição deve ser uma string.' })
+  @IsString({ message: ValidationMessages.FIELD_STRING('descrição') })
   @Length(3, 200, {
-    message: 'A descrição deve ter entre 3 e 200 caracteres.',
+    message: ValidationMessages.LENGTH('descrição', 3, 200),
   })
   @IsOptional()
   @ApiProperty({
@@ -22,8 +23,7 @@ export class BaseTaskDto {
   description?: string;
 
   @IsEnum($Enums.TaskStatus, {
-    message:
-      'O status deve ser um dos seguintes valores: completed, pending, in_progress ou cancelled.',
+    message: ValidationMessages.ENUM_INVALID('status', $Enums.TaskStatus),
   })
   @ApiProperty({
     enum: $Enums.TaskStatus,

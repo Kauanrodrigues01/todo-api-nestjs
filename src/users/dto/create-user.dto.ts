@@ -8,6 +8,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
+import { ValidationMessages } from 'src/common/messages/validation-messages';
 
 @ValidatorConstraint({ name: 'MatchPasswords', async: false })
 export class MatchPasswords implements ValidatorConstraintInterface {
@@ -26,8 +27,10 @@ export class MatchPasswords implements ValidatorConstraintInterface {
 
 export class CreateUserDto extends BaseUserDto {
   @ApiProperty({ example: 'senhaSuperSecreta123' })
-  @IsString()
-  @MinLength(6, { message: 'A senha deve ter no mínimo 6 caracteres' })
+  @IsString({ message: ValidationMessages.FIELD_STRING('passwordConfirm') })
+  @MinLength(6, {
+    message: ValidationMessages.MIN_LENGTH('passwordConfirm', 6),
+  })
   @Validate(MatchPasswords)
   passwordConfirm: string;
 }
