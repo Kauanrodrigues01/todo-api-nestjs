@@ -10,6 +10,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { BcryptService } from 'src/auth/hash/bcrypt.service';
+import { ValidationMessages } from 'src/common/messages/validation-messages';
 
 const userSelectFields = {
   id: true,
@@ -64,7 +65,8 @@ export class UsersService {
       select: userSelectFields,
     });
 
-    if (!user) throw new NotFoundException('Usuário não encontrado');
+    if (!user)
+      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
 
     return user;
   }
@@ -90,7 +92,7 @@ export class UsersService {
         select: userSelectFields,
       });
     } catch {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
     }
   }
 
@@ -99,14 +101,16 @@ export class UsersService {
     updatePasswordDto: UpdatePasswordDto,
   ): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user) throw new NotFoundException('Usuário não encontrado');
+    if (!user)
+      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
 
     const isPasswordValid = await this.bcrypt.comparePassword(
       updatePasswordDto.oldPassword,
       user.password,
     );
 
-    if (!isPasswordValid) throw new BadRequestException('Senha incorreta');
+    if (!isPasswordValid)
+      throw new BadRequestException(ValidationMessages.AUTH_INVALID_PASSWORD);
 
     const hashedPassword = await this.bcrypt.hashPassword(
       updatePasswordDto.newPassword,
@@ -123,7 +127,7 @@ export class UsersService {
     try {
       await this.prisma.user.delete({ where: { id } });
     } catch {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
     }
   }
 }
