@@ -9,6 +9,7 @@ import { PaginatedResponseDto } from 'src/common/dto/pagination-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
+import { BcryptService } from 'src/auth/hash/bcrypt.service';
 
 const userSelectFields = {
   id: true,
@@ -21,7 +22,10 @@ const userSelectFields = {
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly bcrypt: BcryptService,
+  ) {}
 
   async findAll(
     paginationDto: PaginationQueryDto,
@@ -68,6 +72,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordConfirm, ...data } = createUserDto;
+    data.password = await this.bcrypt.hashPassword(data.password);
     return await this.prisma.user.create({
       data,
       select: userSelectFields,
@@ -96,13 +101,20 @@ export class UsersService {
     const user = await this.prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundException('Usuário não encontrado');
 
-    if (user.password != updatePasswordDto.oldPassword) {
-      throw new BadRequestException('Senha antiga incorreta');
-    }
+    const isPasswordValid = await this.bcrypt.comparePassword(
+      updatePasswordDto.oldPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) throw new BadRequestException('Senha incorreta');
+
+    const hashedPassword = await this.bcrypt.hashPassword(
+      updatePasswordDto.newPassword,
+    );
 
     return await this.prisma.user.update({
       where: { id },
-      data: { password: updatePasswordDto.newPassword },
+      data: { password: hashedPassword },
       select: userSelectFields,
     });
   }

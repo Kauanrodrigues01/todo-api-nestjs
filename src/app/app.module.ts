@@ -10,11 +10,13 @@ import { ConfigModule } from '@nestjs/config';
 import { plainToInstance } from 'class-transformer';
 import { EnvValidationSchema } from 'src/common/config/env.validation';
 import { validateSync } from 'class-validator';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
     TasksModule,
     UsersModule,
+    AuthModule,
     ConfigModule.forRoot({
       envFilePath: ['.env'],
       isGlobal: true,
