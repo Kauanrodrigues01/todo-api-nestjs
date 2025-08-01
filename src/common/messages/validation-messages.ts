@@ -18,6 +18,8 @@ export const ValidationMessages = {
   // Mensagens de autenticação
   AUTH_INVALID_EMAIL: 'Email inválido',
   AUTH_INVALID_PASSWORD: 'Senha inválida',
+  TOKEN_NOT_PROVIDED: 'Token não fornecido',
+  TOKEN_INVALID: 'Token inválido',
 
   // Mensagens específicas por domínio
   TASK: {
@@ -26,6 +28,5 @@ export const ValidationMessages = {
 
   USER: {
     NOT_FOUND: (id: number) => `Usuário com o ID ${id} não encontrado`,
-    // outras mensagens específicas de usuário aqui...
   },
 };

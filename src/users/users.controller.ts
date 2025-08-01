@@ -2,14 +2,13 @@ import {
   Body,
   Controller,
   Get,
-  Param,
-  ParseIntPipe,
   Post,
   Patch,
   Query,
   HttpCode,
   HttpStatus,
   Delete,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
@@ -19,6 +18,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiNoContentResponse,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import {
   ApiBadRequestResponse,
@@ -28,12 +28,17 @@ import {
 import { UserResponseDto } from './dto/user-response.dto';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
+import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { UserPayload } from 'src/auth/types/user-payload.type';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Retorna uma lista paginada de usuários' })
   @ApiOkPaginatedResponse(UserResponseDto)
   @ApiInternalServerErrorResponse()
@@ -41,13 +46,15 @@ export class UsersController {
     return await this.usersService.findAll(query);
   }
 
-  @Get('/:id')
+  @Get('/me')
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Retorna um usuário' })
   @ApiOkResponse({ type: UserResponseDto })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
-  async findOneUser(@Param('id', ParseIntPipe) id: number) {
-    return await this.usersService.findOne(id);
+  async findOneUser(@TokenPayloadParam() userPayload: UserPayload) {
+    return await this.usersService.findOne(userPayload);
   }
 
   @Post()
@@ -62,7 +69,9 @@ export class UsersController {
     return this.usersService.create(createUserDto);
   }
 
-  @Patch('/:id')
+  @Patch()
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Atualiza um usuário existente' })
   @ApiOkResponse({
     description: 'Usuário atualizado com sucesso',
@@ -72,13 +81,16 @@ export class UsersController {
   @ApiNotFoundResponse('Usuário não encontrado')
   @ApiInternalServerErrorResponse()
   async update(
-    @Param('id', ParseIntPipe) id: number,
     @Body() updateUserDto: UpdateUserDto,
+    @TokenPayloadParam() userPayload: UserPayload,
   ) {
-    return await this.usersService.update(id, updateUserDto);
+    console.log(userPayload);
+    return await this.usersService.update(updateUserDto, userPayload);
   }
 
-  @Patch('/:id/password')
+  @Patch('/password')
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Atualiza a senha de um usuário existente' })
   @ApiOkResponse({
     description: 'Senha do usuário atualizado com sucesso',
@@ -88,19 +100,24 @@ export class UsersController {
   @ApiNotFoundResponse('Usuário não encontrado')
   @ApiInternalServerErrorResponse()
   async updatePassword(
-    @Param('id', ParseIntPipe) id: number,
     @Body() updatePasswordDto: UpdatePasswordDto,
+    @TokenPayloadParam() userPayload: UserPayload,
   ) {
-    return await this.usersService.updatePassword(id, updatePasswordDto);
+    return await this.usersService.updatePassword(
+      updatePasswordDto,
+      userPayload,
+    );
   }
 
-  @Delete('/:id')
+  @Delete()
+  @ApiBearerAuth()
+  @UseGuards(AuthTokenGuard)
   @ApiOperation({ summary: 'Remove um usuário' })
   @ApiNoContentResponse({ description: 'Usuário removido com sucesso' })
   @ApiNotFoundResponse('Usuário não encontrado')
   @ApiInternalServerErrorResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.usersService.remove(id);
+  async remove(@TokenPayloadParam() userPayload: UserPayload) {
+    await this.usersService.remove(userPayload);
   }
 }

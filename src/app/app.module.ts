@@ -1,16 +1,17 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { TasksModule } from 'src/tasks/tasks.module';
-import { UsersModule } from 'src/users/users.module';
-import { AuthMiddleware } from 'src/common/middlewares/auth.middleware';
-import { APP_GUARD } from '@nestjs/core';
-import { AuthAdminGuard } from 'src/common/guards/admin.guard';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { plainToInstance } from 'class-transformer';
-import { EnvValidationSchema } from 'src/common/config/env.validation';
 import { validateSync } from 'class-validator';
 import { AuthModule } from 'src/auth/auth.module';
+import jwtConfig from 'src/auth/config/jwt.config';
+import { EnvValidationSchema } from 'src/common/config/env.validation';
+import { AuthAdminGuard } from 'src/common/guards/admin.guard';
+import { TestMiddleware } from 'src/common/middlewares/auth.middleware';
+import { TasksModule } from 'src/tasks/tasks.module';
+import { UsersModule } from 'src/users/users.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { AuthModule } from 'src/auth/auth.module';
     ConfigModule.forRoot({
       envFilePath: ['.env'],
       isGlobal: true,
+      load: [jwtConfig],
       validate(config) {
         // plainToInstance tranforma o objeto config (as variáveis de ambiente) em uma instância de EnvValidationSchema
         const validatedConfig = plainToInstance(EnvValidationSchema, config, {
@@ -52,6 +54,6 @@ import { AuthModule } from 'src/auth/auth.module';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(AuthMiddleware).forRoutes('*');
+    consumer.apply(TestMiddleware).forRoutes('*');
   }
 }

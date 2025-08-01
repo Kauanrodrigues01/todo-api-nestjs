@@ -11,6 +11,7 @@ import { UserResponseDto } from './dto/user-response.dto';
 import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { BcryptService } from 'src/auth/hash/bcrypt.service';
 import { ValidationMessages } from 'src/common/messages/validation-messages';
+import { UserPayload } from 'src/auth/types/user-payload.type';
 
 const userSelectFields = {
   id: true,
@@ -36,11 +37,9 @@ export class UsersService {
 
     const [allUsers, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
-        skip: skip,
+        skip,
         take: limit,
-        orderBy: {
-          createdAt: 'desc',
-        },
+        orderBy: { createdAt: 'desc' },
         select: userSelectFields,
       }),
       this.prisma.user.count(),
@@ -52,21 +51,23 @@ export class UsersService {
         totalItems: total,
         itemCount: allUsers.length,
         itemsPerPage: limit,
-        totalPages: totalPages,
+        totalPages,
         currentPage: page,
       },
       data: allUsers,
     };
   }
 
-  async findOne(id: number): Promise<UserResponseDto> {
+  async findOne(userPayload: UserPayload): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
-      where: { id },
+      where: { id: userPayload.sub },
       select: userSelectFields,
     });
 
     if (!user)
-      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
+      throw new NotFoundException(
+        ValidationMessages.USER.NOT_FOUND(userPayload.sub),
+      );
 
     return user;
   }
@@ -74,60 +75,109 @@ export class UsersService {
   async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { passwordConfirm, ...data } = createUserDto;
+
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: data.email },
+    });
+
+    if (existingUser) {
+      throw new BadRequestException(`O e-mail '${data.email}' já está em uso.`);
+    }
+
     data.password = await this.bcrypt.hashPassword(data.password);
-    return await this.prisma.user.create({
+
+    return this.prisma.user.create({
       data,
       select: userSelectFields,
     });
   }
 
   async update(
-    id: number,
     updateUserDto: UpdateUserDto,
+    userPayload: UserPayload,
   ): Promise<UserResponseDto> {
-    try {
-      return await this.prisma.user.update({
-        where: { id },
-        data: { ...updateUserDto },
-        select: userSelectFields,
-      });
-    } catch {
-      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
+    const user = await this.prisma.user.findUnique({
+      where: { id: userPayload.sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        ValidationMessages.USER.NOT_FOUND(userPayload.sub),
+      );
     }
+
+    if (updateUserDto.email && updateUserDto.email !== user.email) {
+      const emailExists = await this.prisma.user.findUnique({
+        where: { email: updateUserDto.email },
+      });
+
+      if (emailExists) {
+        throw new BadRequestException(
+          `O e-mail '${updateUserDto.email}' já está em uso.`,
+        );
+      }
+    }
+
+    return this.prisma.user.update({
+      where: { id: userPayload.sub },
+      data: updateUserDto,
+      select: userSelectFields,
+    });
   }
 
   async updatePassword(
-    id: number,
     updatePasswordDto: UpdatePasswordDto,
+    userPayload: UserPayload,
   ): Promise<UserResponseDto> {
-    const user = await this.prisma.user.findUnique({ where: { id } });
-    if (!user)
-      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
+    const user = await this.prisma.user.findUnique({
+      where: { id: userPayload.sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        ValidationMessages.USER.NOT_FOUND(userPayload.sub),
+      );
+    }
 
     const isPasswordValid = await this.bcrypt.comparePassword(
       updatePasswordDto.oldPassword,
       user.password,
     );
 
-    if (!isPasswordValid)
+    if (!isPasswordValid) {
       throw new BadRequestException(ValidationMessages.AUTH_INVALID_PASSWORD);
+    }
+
+    if (updatePasswordDto.oldPassword === updatePasswordDto.newPassword) {
+      throw new BadRequestException(
+        'A nova senha não pode ser igual à anterior.',
+      );
+    }
 
     const hashedPassword = await this.bcrypt.hashPassword(
       updatePasswordDto.newPassword,
     );
 
-    return await this.prisma.user.update({
-      where: { id },
+    return this.prisma.user.update({
+      where: { id: userPayload.sub },
       data: { password: hashedPassword },
       select: userSelectFields,
     });
   }
 
-  async remove(id: number): Promise<void> {
-    try {
-      await this.prisma.user.delete({ where: { id } });
-    } catch {
-      throw new NotFoundException(ValidationMessages.USER.NOT_FOUND(id));
+  async remove(userPayload: UserPayload): Promise<void> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userPayload.sub },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        ValidationMessages.USER.NOT_FOUND(userPayload.sub),
+      );
     }
+
+    await this.prisma.user.delete({
+      where: { id: userPayload.sub },
+    });
   }
 }
