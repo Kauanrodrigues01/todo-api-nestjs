@@ -10,13 +10,14 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiCreatedResponse,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
@@ -29,8 +30,12 @@ import {
 } from 'src/common/swagger/decorators/api-exceptions-response.decorators';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { ApiOkPaginatedResponse } from 'src/common/swagger/decorators/api-pagineted-response.decotors';
+import { UserPayload } from 'src/auth/types/user-payload.type';
+import { TokenPayloadParam } from 'src/auth/param/token-payload.param';
+import { AuthTokenGuard } from 'src/auth/guards/auth-token.guard';
 
-@ApiTags('Tasks')
+@ApiBearerAuth()
+@UseGuards(AuthTokenGuard)
 @Controller('tasks')
 export class TasksController {
   constructor(private readonly tasksService: TasksService) {}
@@ -43,8 +48,11 @@ export class TasksController {
   })
   @ApiOkPaginatedResponse(TaskResponseDto)
   @ApiInternalServerErrorResponse()
-  async findAllTasks(@Query() query: PaginationQueryDto) {
-    return await this.tasksService.findAll(query);
+  async findAllTasks(
+    @Query() query: PaginationQueryDto,
+    @TokenPayloadParam() userPayload: UserPayload,
+  ) {
+    return await this.tasksService.findAll(query, userPayload);
   }
 
   @Get('/:id')
@@ -59,8 +67,11 @@ export class TasksController {
   })
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
-  async findOneTask(@Param('id', ParseIntPipe) id: number) {
-    return await this.tasksService.findOne(id);
+  async findOneTask(
+    @Param('id', ParseIntPipe) id: number,
+    @TokenPayloadParam() userPayload: UserPayload,
+  ) {
+    return await this.tasksService.findOne(id, userPayload);
   }
 
   @Post()
@@ -75,8 +86,11 @@ export class TasksController {
   })
   @ApiBadRequestResponse()
   @ApiInternalServerErrorResponse()
-  async create(@Body() createTaskDto: CreateTaskDto) {
-    return await this.tasksService.create(createTaskDto);
+  async create(
+    @Body() createTaskDto: CreateTaskDto,
+    @TokenPayloadParam() userPayload: UserPayload,
+  ) {
+    return await this.tasksService.create(createTaskDto, userPayload);
   }
 
   @Patch('/:id')
@@ -95,8 +109,9 @@ export class TasksController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateTaskDto: UpdateTaskDto,
+    @TokenPayloadParam() userPayload: UserPayload,
   ) {
-    return await this.tasksService.update(id, updateTaskDto);
+    return await this.tasksService.update(id, updateTaskDto, userPayload);
   }
 
   @Delete('/:id')
@@ -109,7 +124,10 @@ export class TasksController {
   @ApiNotFoundResponse('Tarefa não encontrada')
   @ApiInternalServerErrorResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.tasksService.remove(id);
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @TokenPayloadParam() userPayload: UserPayload,
+  ) {
+    await this.tasksService.remove(id, userPayload);
   }
 }

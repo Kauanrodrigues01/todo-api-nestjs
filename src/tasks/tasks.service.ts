@@ -6,6 +6,7 @@ import { Task } from '@prisma/client';
 import { PaginationQueryDto } from 'src/common/dto/pagination-query.dto';
 import { PaginatedResponseDto } from 'src/common/dto/pagination-response.dto';
 import { ValidationMessages } from 'src/common/messages/validation-messages';
+import { UserPayload } from 'src/auth/types/user-payload.type';
 
 @Injectable()
 export class TasksService {
@@ -13,20 +14,27 @@ export class TasksService {
 
   async findAll(
     paginationDto: PaginationQueryDto,
+    userPayload: UserPayload,
   ): Promise<PaginatedResponseDto<Task>> {
     const { page = 1, limit = 10 } = paginationDto;
     const skip = (page - 1) * limit;
 
     const [allTasks, total] = await this.prisma.$transaction([
       this.prisma.task.findMany({
-        // busca todas as tarefas no db
+        where: {
+          userId: userPayload.sub,
+        },
         skip: skip,
         take: limit,
         orderBy: {
           createdAt: 'desc',
         },
       }),
-      this.prisma.task.count(),
+      this.prisma.task.count({
+        where: {
+          userId: userPayload.sub,
+        },
+      }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -42,10 +50,11 @@ export class TasksService {
     };
   }
 
-  async findOne(id: number): Promise<Task> {
-    const task = await this.prisma.task.findUnique({
+  async findOne(id: number, userPayload: UserPayload): Promise<Task> {
+    const task = await this.prisma.task.findFirst({
       where: {
         id: id,
+        userId: userPayload.sub,
       },
     });
     if (!task)
@@ -53,17 +62,24 @@ export class TasksService {
     return task;
   }
 
-  async create(createTaskDto: CreateTaskDto): Promise<Task> {
+  async create(
+    createTaskDto: CreateTaskDto,
+    userPayload: UserPayload,
+  ): Promise<Task> {
     const task = await this.prisma.task.create({
-      data: { ...createTaskDto, userId: 1 },
+      data: { ...createTaskDto, userId: userPayload.sub },
     });
     return task;
   }
 
-  async update(id: number, updateTaskDto: UpdateTaskDto): Promise<Task> {
+  async update(
+    id: number,
+    updateTaskDto: UpdateTaskDto,
+    userPayload: UserPayload,
+  ): Promise<Task> {
     try {
       return await this.prisma.task.update({
-        where: { id },
+        where: { id, userId: userPayload.sub },
         data: updateTaskDto,
       });
     } catch {
@@ -71,10 +87,10 @@ export class TasksService {
     }
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userPayload: UserPayload): Promise<void> {
     try {
       await this.prisma.task.delete({
-        where: { id },
+        where: { id, userId: userPayload.sub },
       });
     } catch {
       throw new NotFoundException(ValidationMessages.TASK.NOT_FOUND(id));
