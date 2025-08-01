@@ -26,6 +26,9 @@ export class AuthService {
     if (!user)
       throw new UnauthorizedException(ValidationMessages.AUTH_INVALID_EMAIL);
 
+    if (!user.isActive)
+      throw new UnauthorizedException(ValidationMessages.USER.DISABLED);
+
     const isValidPassword = await this.bcrypt.comparePassword(
       signInDto.password,
       user.password,

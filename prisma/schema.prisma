@@ -41,11 +41,12 @@ model Task {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       Int     @id @default(autoincrement())
   name     String
   password String
-  email    String @unique
-  role     Role   @default(USER)
+  email    String  @unique
+  role     Role    @default(USER)
+  isActive Boolean @default(true)
   tasks    Task[]
 
   createdAt DateTime @default(now())

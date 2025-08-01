@@ -37,12 +37,15 @@ export class UsersService {
 
     const [allUsers, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
+        where: {
+          isActive: true,
+        },
         skip,
         take: limit,
         orderBy: { createdAt: 'desc' },
         select: userSelectFields,
       }),
-      this.prisma.user.count(),
+      this.prisma.user.count({ where: { isActive: true } }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -60,7 +63,7 @@ export class UsersService {
 
   async findOne(userPayload: UserPayload): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userPayload.sub },
+      where: { id: userPayload.sub, isActive: true },
       select: userSelectFields,
     });
 
@@ -97,7 +100,7 @@ export class UsersService {
     userPayload: UserPayload,
   ): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userPayload.sub },
+      where: { id: userPayload.sub, isActive: true },
     });
 
     if (!user) {
@@ -130,7 +133,7 @@ export class UsersService {
     userPayload: UserPayload,
   ): Promise<UserResponseDto> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userPayload.sub },
+      where: { id: userPayload.sub, isActive: true },
     });
 
     if (!user) {
@@ -167,7 +170,7 @@ export class UsersService {
 
   async remove(userPayload: UserPayload): Promise<void> {
     const user = await this.prisma.user.findUnique({
-      where: { id: userPayload.sub },
+      where: { id: userPayload.sub, isActive: true },
     });
 
     if (!user) {
@@ -176,8 +179,11 @@ export class UsersService {
       );
     }
 
-    await this.prisma.user.delete({
+    await this.prisma.user.update({
       where: { id: userPayload.sub },
+      data: {
+        isActive: false,
+      },
     });
   }
 }

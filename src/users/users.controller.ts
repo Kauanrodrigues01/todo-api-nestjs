@@ -39,7 +39,10 @@ export class UsersController {
   @Get()
   @ApiBearerAuth()
   @UseGuards(AuthTokenGuard)
-  @ApiOperation({ summary: 'Retorna uma lista paginada de usuários' })
+  @ApiOperation({
+    summary: 'Listar usuários',
+    description: 'Retorna uma lista paginada de usuários ativos.',
+  })
   @ApiOkPaginatedResponse(UserResponseDto)
   @ApiInternalServerErrorResponse()
   async findAllUsers(@Query() query: PaginationQueryDto) {
@@ -49,7 +52,10 @@ export class UsersController {
   @Get('/me')
   @ApiBearerAuth()
   @UseGuards(AuthTokenGuard)
-  @ApiOperation({ summary: 'Retorna um usuário' })
+  @ApiOperation({
+    summary: 'Obter perfil do usuário logado',
+    description: 'Retorna os dados do usuário autenticado.',
+  })
   @ApiOkResponse({ type: UserResponseDto })
   @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
@@ -58,9 +64,12 @@ export class UsersController {
   }
 
   @Post()
-  @ApiOperation({ summary: 'Cria um usuário' })
+  @ApiOperation({
+    summary: 'Criar novo usuário',
+    description: 'Cria um novo usuário no sistema.',
+  })
   @ApiCreatedResponse({
-    description: 'Usuário criada com sucesso',
+    description: 'Usuário criado com sucesso',
     type: UserResponseDto,
   })
   @ApiBadRequestResponse()
@@ -72,32 +81,39 @@ export class UsersController {
   @Patch()
   @ApiBearerAuth()
   @UseGuards(AuthTokenGuard)
-  @ApiOperation({ summary: 'Atualiza um usuário existente' })
+  @ApiOperation({
+    summary: 'Atualizar dados do usuário',
+    description:
+      'Atualiza as informações do usuário autenticado. E-mail duplicado será rejeitado.',
+  })
   @ApiOkResponse({
     description: 'Usuário atualizado com sucesso',
     type: UserResponseDto,
   })
   @ApiBadRequestResponse()
-  @ApiNotFoundResponse('Usuário não encontrado')
+  @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   async update(
     @Body() updateUserDto: UpdateUserDto,
     @TokenPayloadParam() userPayload: UserPayload,
   ) {
-    console.log(userPayload);
     return await this.usersService.update(updateUserDto, userPayload);
   }
 
   @Patch('/password')
   @ApiBearerAuth()
   @UseGuards(AuthTokenGuard)
-  @ApiOperation({ summary: 'Atualiza a senha de um usuário existente' })
+  @ApiOperation({
+    summary: 'Alterar senha do usuário',
+    description:
+      'Atualiza a senha do usuário autenticado. Requer senha atual e nova senha.',
+  })
   @ApiOkResponse({
-    description: 'Senha do usuário atualizado com sucesso',
+    description: 'Senha atualizada com sucesso',
     type: UserResponseDto,
   })
   @ApiBadRequestResponse()
-  @ApiNotFoundResponse('Usuário não encontrado')
+  @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   async updatePassword(
     @Body() updatePasswordDto: UpdatePasswordDto,
@@ -112,9 +128,13 @@ export class UsersController {
   @Delete()
   @ApiBearerAuth()
   @UseGuards(AuthTokenGuard)
-  @ApiOperation({ summary: 'Remove um usuário' })
-  @ApiNoContentResponse({ description: 'Usuário removido com sucesso' })
-  @ApiNotFoundResponse('Usuário não encontrado')
+  @ApiOperation({
+    summary: 'Desativar conta de usuário',
+    description:
+      'Realiza o soft delete da conta do usuário autenticado (define `isActive` como false).',
+  })
+  @ApiNoContentResponse({ description: 'Conta desativada com sucesso' })
+  @ApiNotFoundResponse()
   @ApiInternalServerErrorResponse()
   @HttpCode(HttpStatus.NO_CONTENT)
   async remove(@TokenPayloadParam() userPayload: UserPayload) {

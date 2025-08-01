@@ -28,5 +28,7 @@ export const ValidationMessages = {
 
   USER: {
     NOT_FOUND: (id: number) => `Usuário com o ID ${id} não encontrado`,
+    DISABLED:
+      'Sua conta foi desativada. Entre em contato com o suporte caso necessário.',
   },
 };
