@@ -11,6 +11,11 @@ export class UserResponseDto {
   @ApiProperty({ example: 'joao.silva@exemplo.com' })
   email: string;
 
+  @ApiProperty({
+    example: 'https://yourdomain.com/media/user-12345.jpg',
+  })
+  avatarUrl: string | null;
+
   @ApiProperty({ example: new Date().toISOString() })
   createdAt: Date;
 

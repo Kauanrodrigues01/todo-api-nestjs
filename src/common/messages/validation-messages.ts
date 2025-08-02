@@ -31,4 +31,11 @@ export const ValidationMessages = {
     DISABLED:
       'Sua conta foi desativada. Entre em contato com o suporte caso necessário.',
   },
+
+  IMAGE: {
+    INVALID_FORMAT:
+      'Apenas imagens nos formatos .jpeg, .jpg ou .png são permitidas',
+    MAX_SIZE: (size: string) =>
+      `O tamanho máximo permitido para a imagem é de ${size}`,
+  },
 };

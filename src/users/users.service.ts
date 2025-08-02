@@ -12,11 +12,13 @@ import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { BcryptService } from 'src/auth/hash/bcrypt.service';
 import { ValidationMessages } from 'src/common/messages/validation-messages';
 import { UserPayload } from 'src/auth/types/user-payload.type';
+import { Request } from 'express';
 
 const userSelectFields = {
   id: true,
   name: true,
   email: true,
+  avatarUrl: true,
   createdAt: true,
   updatedAt: true,
   tasks: true,
@@ -184,6 +186,39 @@ export class UsersService {
       data: {
         isActive: false,
       },
+    });
+  }
+
+  async uploadAvatarImage(
+    userPayload: UserPayload,
+    file: Express.Multer.File,
+  ): Promise<UserResponseDto> {
+    if (!/^(image\/jpeg|image\/jpg|image\/png)$/.test(file.mimetype)) {
+      throw new BadRequestException(ValidationMessages.IMAGE.INVALID_FORMAT);
+    }
+
+    const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
+
+    if (file.size > MAX_FILE_SIZE) {
+      throw new BadRequestException(ValidationMessages.IMAGE.MAX_SIZE('2MB'));
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: userPayload.sub, isActive: true },
+    });
+
+    if (!user) {
+      throw new NotFoundException(
+        ValidationMessages.USER.NOT_FOUND(userPayload.sub),
+      );
+    }
+
+    return await this.prisma.user.update({
+      where: { id: userPayload.sub },
+      data: {
+        avatarUrl: `/media/${file.filename}`,
+      },
+      select: userSelectFields,
     });
   }
 }

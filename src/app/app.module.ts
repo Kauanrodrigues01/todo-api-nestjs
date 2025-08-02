@@ -12,6 +12,8 @@ import { TasksModule } from 'src/tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { join } from 'node:path';
+import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
@@ -42,6 +44,10 @@ import { AppService } from './app.service';
         return validatedConfig;
       },
     }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', '..', 'media'),
+      serveRoot: '/media',
+    }),
   ],
   controllers: [AppController],
   providers: [
@@ -54,6 +60,6 @@ import { AppService } from './app.service';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(TestMiddleware).forRoutes('*');
+    consumer.apply(TestMiddleware).exclude('media/(.*)').forRoutes('*');
   }
 }
