@@ -12,17 +12,7 @@ import { UpdatePasswordDto, UpdateUserDto } from './dto/update-user.dto';
 import { BcryptService } from 'src/auth/hash/bcrypt.service';
 import { ValidationMessages } from 'src/common/messages/validation-messages';
 import { UserPayload } from 'src/auth/types/user-payload.type';
-import { Request } from 'express';
-
-const userSelectFields = {
-  id: true,
-  name: true,
-  email: true,
-  avatarUrl: true,
-  createdAt: true,
-  updatedAt: true,
-  tasks: true,
-};
+import { userSelectFields } from './constants/user-select-fields.constant';
 
 @Injectable()
 export class UsersService {
