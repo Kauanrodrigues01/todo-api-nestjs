@@ -1,8 +1,10 @@
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
+import { ServeStaticModule } from '@nestjs/serve-static';
 import { plainToInstance } from 'class-transformer';
 import { validateSync } from 'class-validator';
+import { join } from 'node:path';
 import { AuthModule } from 'src/auth/auth.module';
 import jwtConfig from 'src/auth/config/jwt.config';
 import { EnvValidationSchema } from 'src/common/config/env.validation';
@@ -12,8 +14,6 @@ import { TasksModule } from 'src/tasks/tasks.module';
 import { UsersModule } from 'src/users/users.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { join } from 'node:path';
-import { ServeStaticModule } from '@nestjs/serve-static';
 
 @Module({
   imports: [
